@@ -24,11 +24,15 @@ public:
 
     bool end() const { return c_in.eof(); }
 
+    virtual void setStoped(bool v) {
+        stopped = v;
+    };
+
     /** @brief Read line from console and convert into a command type
     * @return command type
     */
     CmdType nextLine() {
-        if (!std::getline(c_in, strCmd)) {
+        if (!readLine(strCmd)) {
             return CmdType::End;
         }
         if (сmdType.contains(strCmd)) {
@@ -37,11 +41,17 @@ public:
         return CmdType::Cmd;
     }
 public:
-    std::istream &c_in;
+    std::istream &c_in; //iostream
     std::string strCmd;
     std::unordered_map<std::string, CmdType> сmdType {
         {"{", CmdType::Lbrace},
         {"}", CmdType::Rbrace},
         {"End", CmdType::End}
     };
+protected:
+    bool stopped {false}; //atomic
+
+    virtual bool readLine(std::string &str) {
+        return bool(std::getline(c_in, str));
+    }
 };

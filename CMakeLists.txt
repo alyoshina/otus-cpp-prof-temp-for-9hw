@@ -3,31 +3,38 @@ cmake_minimum_required(VERSION 3.16.3)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-project(bulk VERSION ${PROJECT_VERSION})
+project(async VERSION ${PROJECT_VERSION})
 
-configure_file(version.h.in version.h)
-
-find_package(Boost CONFIG COMPONENTS program_options REQUIRED)
-
-add_executable(bulk 
-    src/main.cpp
+add_library(async SHARED 
+    src/async.cpp
     src/commands.cpp
     src/parser.cpp
 )
 
-target_link_libraries(bulk Boost::program_options)
-
-target_include_directories(bulk PRIVATE
+target_include_directories(async PRIVATE
     "${CMAKE_BINARY_DIR}"
     src
     include
 )
-    
-set_target_properties(bulk PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+
+configure_file(version.h.in version.h)
+
+
+add_executable(async_cli src/main.cpp)
+
+target_link_libraries(async_cli async)
+
+target_include_directories(async_cli PRIVATE
+    "${CMAKE_BINARY_DIR}"
+    src
+    include
+)
+  
+set_target_properties(async async_cli PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
     CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(bulk PRIVATE 
+    target_compile_options(async PRIVATE 
         -g
         -Wall
         -Wextra
@@ -35,14 +42,14 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
         -pedantic
     )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(bulk PRIVATE
+    target_compile_options(async PRIVATE
         /EHsc
         /W4
         /WX
     )
 endif()
 
-install(TARGETS bulk RUNTIME DESTINATION bin)
+install(TARGETS async async_cli)
 
 set(CPACK_GENERATOR DEB)
 

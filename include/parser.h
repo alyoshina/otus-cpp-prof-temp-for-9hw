@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lexer.h"
-#include "output.h"
+#include "output_thread.h"
 #include "commands.h"
 #include <memory>
 
@@ -24,6 +24,7 @@ public:
     * @return false if end
     */
     bool expr();
+    void setStoped(bool v) { lexer->setStoped(v); }
 private:
     std::shared_ptr<Lexer> lexer;
     std::list<std::shared_ptr<IOutput>> oList;
