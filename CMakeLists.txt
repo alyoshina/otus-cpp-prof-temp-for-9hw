@@ -84,7 +84,7 @@ install(TARGETS async async_cli)
 
 #PUBLIC_HEADER
 install(
-        DIRECTORY include
+        DIRECTORY include/
         DESTINATION include/async
         FILES_MATCHING PATTERN "*.h"
         )
