@@ -83,7 +83,11 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/AsyncConfig.cmake
 install(TARGETS async async_cli)
 
 #PUBLIC_HEADER
-install(FILES FILES_MATCHING PATTERN "*.h" DESTINATION include/async)
+install(
+        DIRECTORY include
+        DESTINATION include/async
+        FILES_MATCHING PATTERN "*.h"
+        )
 
 #--------------------------------------
 
