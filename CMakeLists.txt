@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.16.3)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-project(async VERSION ${PROJECT_VERSION})
-
 set(LIB_NAME "async")
+
+project(LIB_NAME VERSION ${PROJECT_VERSION})
 
 add_library(${LIB_NAME} SHARED 
     src/async.cpp
@@ -58,6 +58,7 @@ configure_package_config_file(
   INSTALL_DESTINATION "lib/cmake/${LIB_NAME}"
   NO_SET_AND_CHECK_MACRO NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
+
 # generate the version file for the config file
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-config-version.cmake"
@@ -70,7 +71,10 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-config-version.cmake
         DESTINATION lib/cmake/${LIB_NAME}
 )
+
 install(TARGETS ${LIB_NAME} ${LIB_NAME}_cli)
+
+# install header files
 install(DIRECTORY include/
         DESTINATION include/${LIB_NAME}
         FILES_MATCHING PATTERN "*.h"
