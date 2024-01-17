@@ -49,7 +49,39 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
 endif()
 
+#--------------------------------------
+message(STATUS "CMAKE_CURRENT_LIST_DIR IS: " ${CMAKE_CURRENT_LIST_DIR})
+message(STATUS "CMAKE_PREFIX_PATH IS: " ${CMAKE_PREFIX_PATH})
+
+#install(TARGETS async async_cli)
+#install(FILES include/async.h DESTINATION include/async)
+#install(FILES AsyncConfig.cmake DESTINATION lib/cmake/Async)
+
+include(CMakePackageConfigHelpers)
+# generate the config file that is includes the exports
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/AsyncConfig.cmake"
+  INSTALL_DESTINATION "lib/cmake/async"
+  NO_SET_AND_CHECK_MACRO NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+# generate the version file for the config file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/AsyncConfigVersion.cmake"
+  VERSION "${PROJECT_VERSION}"
+  COMPATIBILITY AnyNewerVersion
+)
+
+# install the configuration file
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/AsyncConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/AsyncConfigVersion.cmake
+        DESTINATION lib/cmake/async
+)
+
 install(TARGETS async async_cli)
+install(FILES include/async.h DESTINATION include/async)
+
+#--------------------------------------
 
 set(CPACK_GENERATOR DEB)
 
