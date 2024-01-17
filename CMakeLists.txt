@@ -51,7 +51,9 @@ endif()
 
 #--------------------------------------
 message(STATUS "CMAKE_CURRENT_LIST_DIR IS: " ${CMAKE_CURRENT_LIST_DIR})
-message(STATUS "CMAKE_PREFIX_PATH IS: " ${CMAKE_PREFIX_PATH})
+set_target_properties(async PROPERTIES PUBLIC_HEADER "include/async.h")
+
+message(STATUS "PUBLIC_HEADER IS: " async.${PUBLIC_HEADER})
 
 #install(TARGETS async async_cli)
 #install(FILES include/async.h DESTINATION include/async)
@@ -79,7 +81,9 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/AsyncConfig.cmake
 )
 
 install(TARGETS async async_cli)
-install(FILES include/async.h DESTINATION include/async)
+
+#PUBLIC_HEADER
+install(FILES FILES_MATCHING PATTERN "*.h" DESTINATION include/async)
 
 #--------------------------------------
 
