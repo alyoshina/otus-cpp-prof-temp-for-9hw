@@ -5,7 +5,7 @@ set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
 set(LIB_NAME "async")
 
-project(LIB_NAME VERSION ${PROJECT_VERSION})
+project(${LIB_NAME} VERSION ${PROJECT_VERSION})
 
 add_library(${LIB_NAME} SHARED 
     src/async.cpp
