@@ -2,6 +2,9 @@
 
 #include "output.h"
 
+#include <vector>
+#include <string>
+#include <list>
 #include <filesystem>
 #include <format>
 #include <atomic>
@@ -19,7 +22,7 @@ public:
     }
     ~IOutputThread() = default;
     void stop() override {
-        stopped = true;
+        stopped.store(true);
         cv.notify_all();
         for (auto& t: threads) {
             t.join();
@@ -27,47 +30,47 @@ public:
     }
     void addData(std::shared_ptr<Data> s) override {
         {
-            std::unique_lock lk(m);
+            std::lock_guard lk(m);
             dataList.push_back(s);
-            ready = true;
         }
+        ready.store(true);
         cv.notify_one();
     }
 
 protected:
     virtual void worker(std::shared_ptr<Data> s) = 0;
     void run() {
-        while (!stopped || !dataEmpty()) {
+        while (!stopped.load() || !dataEmpty()) {
             std::shared_ptr<Data> s_ptr;
             {
-                std::unique_lock lk(m); //std::scoped_lock lock
-                cv.wait(lk, [this]{ return ready || stopped; });
-                ready = false;
+                std::unique_lock lk(m);
+                cv.wait(lk, [this]{ return ready.load() || stopped.load(); });
+                ready.store(false);
             }
-
             while ((s_ptr = getData())) {
                 worker(s_ptr);
             }
         }
     };
-    std::mutex m; //std::recursive_mutex
-    std::condition_variable cv; //std::condition_variable_any
-    bool stopped {false}; //atomic
-    std::atomic<bool> ready {false};
+    std::mutex m;
+    std::condition_variable cv;
+    std::atomic_bool stopped {false};
+    std::atomic_bool ready {false};
     std::vector<std::thread> threads;
     std::list<std::shared_ptr<Data>> dataList;
     std::shared_ptr<Data> getData() {
-        //lock если такой же!!!!!!!!!!! std::recursive_mutex
         std::shared_ptr<Data> s;
-        std::lock_guard lk(m);
-        if (!dataList.empty()) {
-            s = dataList.front();
-            dataList.pop_front();
+        {
+            std::lock_guard lk(m);
+            if (!dataList.empty()) {
+                s = dataList.front();
+                dataList.pop_front();
+            }
         }
         return s;
     }
     bool dataEmpty() {
-        std::unique_lock lk(m);
+        std::lock_guard lk(m);
         return dataList.empty();
     }
 };
@@ -82,7 +85,9 @@ public:
 
 private:
     std::ostream& out;
+    std::mutex out_m;
     void worker(std::shared_ptr<Data> s) override {
+        std::lock_guard lk(out_m);
         out << s->data;
         out.flush();
     }

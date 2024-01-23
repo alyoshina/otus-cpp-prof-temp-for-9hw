@@ -27,9 +27,9 @@ int main(int argc, char** argv) {
     //command output methods
     std::list<std::shared_ptr<IOutput>> list;
     //log
-    list.push_back(std::make_shared<ConsoleOutputThread>(std::cout));
+    list.push_back(std::make_shared<ConsoleOutput>(std::cout));
     //file1, file2
-    list.push_back(std::make_shared<FileOutputThreads>());
+    list.push_back(std::make_shared<FileOutput>());
     
     //converting string received from console into a command type
     auto lexer = std::make_shared<Lexer>(std::cin);
@@ -39,11 +39,6 @@ int main(int argc, char** argv) {
     while (parser.parse()) {
         ;
     }
-
-    for (auto io: list) {
-        io->stop();
-    }
-    std::cout << "OUT" << std::endl;
 
     return 0;
 }

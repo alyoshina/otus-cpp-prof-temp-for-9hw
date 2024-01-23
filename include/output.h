@@ -2,16 +2,7 @@
 
 #include <ostream>
 #include <fstream>
-
-#include <sstream>
-#include <vector>
-#include <string>
 #include <memory>
-#include <list>
-
-
-
-#include <iostream>
 
 struct Data {
     std::string name;

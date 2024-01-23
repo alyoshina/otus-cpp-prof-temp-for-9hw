@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <atomic>
 
 /** @brief Converting string received from console into a command type
 *
@@ -22,10 +23,12 @@ public:
         End, /**< is input end */
     };
 
-    bool end() const { return c_in.eof(); }
-
     virtual void setStoped(bool v) {
-        stopped = v;
+        stopped.store(v);
+    };
+
+    virtual void setDataReady(bool v) {
+        ready.store(v);
     };
 
     /** @brief Read line from console and convert into a command type
@@ -40,16 +43,17 @@ public:
         }
         return CmdType::Cmd;
     }
-public:
-    std::istream &c_in; //iostream
+
+protected:
+    std::istream &c_in;
     std::string strCmd;
     std::unordered_map<std::string, CmdType> сmdType {
         {"{", CmdType::Lbrace},
         {"}", CmdType::Rbrace},
         {"End", CmdType::End}
     };
-protected:
-    bool stopped {false}; //atomic
+    std::atomic_bool stopped {false};
+    std::atomic_bool ready {false};
 
     virtual bool readLine(std::string &str) {
         return bool(std::getline(c_in, str));

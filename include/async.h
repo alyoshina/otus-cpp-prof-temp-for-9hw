@@ -1,18 +1,18 @@
 #pragma once
 
-#include "parser_tread.h"
+#include "parser_thread.h"
 
 namespace {
 
-class MainTreads {
+class MainThreads {
 public:
-    MainTreads(std::size_t bulk);
-    ~MainTreads();
+    MainThreads(std::size_t bulk);
+    ~MainThreads();
     void addData(const char *data, std::size_t size) {
-        parserTread->addData(data, size);
+        parserThread->addData(data, size);
     }
 private:
-    std::shared_ptr<ParserTread> parserTread;
+    std::shared_ptr<ParserThread> parserThread;
     std::list<std::shared_ptr<IOutput>> list; /**< command output methods */
 };
 

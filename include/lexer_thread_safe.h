@@ -11,22 +11,44 @@ public:
     LexerThreadSafe(std::istream &in, std::mutex &in_m, std::condition_variable &in_cv)
         : Lexer(in)
         , m(in_m)
-        , cv(in_cv) {}
+        , cv(in_cv)
+        {}
     ~LexerThreadSafe() = default;
 
     void setStoped(bool v) override {
-        std::unique_lock lk(m);
-        stopped = v;
-    }
-    bool ready {false};
+        std::lock_guard lk(m);
+        stopped.store(v);
+    };
 
 protected:
     bool readLine(std::string &str) override {
+        str.clear();
+        std::string tempStr;
         std::unique_lock lk(m);
-        cv.wait(lk, [this]{ return ready || stopped; });
-        ready = false;
-        return bool(std::getline(c_in, str));
+
+        while (!stopped.load() && !std::getline(c_in, tempStr)) {
+            c_in.clear();
+            cv.wait(lk, [this]{ return ready.load() || stopped.load(); });
+            ready.store(false);
+        }
+        while (!stopped.load() && c_in.eof()) {
+            str += tempStr;
+            c_in.clear();
+            cv.wait(lk, [this]{ return ready.load() || stopped.load(); });
+            ready.store(false);
+            if (!stopped.load()) {
+                std::getline(c_in, tempStr);
+            }
+        }
+        if (stopped.load()) {
+            bool retVal = bool(std::getline(c_in, tempStr));
+            str += tempStr;
+            return retVal;
+        }
+        str += tempStr;
+        return true;
     }
+    
 private:
     std::mutex &m;
     std::condition_variable &cv;
