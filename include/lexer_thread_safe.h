@@ -21,16 +21,21 @@ public:
     };
 
 protected:
+    /** @brief Read commands from stream.
+    *
+    */
     bool readLine(std::string &str) override {
         str.clear();
         std::string tempStr;
         std::unique_lock lk(m);
 
+        //wait data in stream
         while (!stopped.load() && !std::getline(c_in, tempStr)) {
             c_in.clear();
             cv.wait(lk, [this]{ return ready.load() || stopped.load(); });
             ready.store(false);
         }
+        //wait '\n' in stream
         while (!stopped.load() && c_in.eof()) {
             str += tempStr;
             c_in.clear();

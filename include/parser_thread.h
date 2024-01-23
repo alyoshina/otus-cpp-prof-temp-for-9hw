@@ -14,6 +14,10 @@ public:
     }
     ~ParserThread() = default;
     void join() { m_thread.join(); }
+
+    /** @brief Add commands to stream.
+    *
+    */
     void addData(const char *data, std::size_t size) {
         {
             std::lock_guard lock(m);
